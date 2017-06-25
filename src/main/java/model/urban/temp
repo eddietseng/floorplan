@@ -1,0 +1,5 @@
+      // Initialize envelope ...
+    
+      be.addPoint( x, y );
+      be.addPoint( x + width, y + width );
+

@@ -1,0 +1,196 @@
+/** 
+  *  ======================================================================
+  *  PlanViewPanel.java. Create simple GUI with panel ...
+  * 
+  *  Written By : Mark Austin                                  October 2011
+  *  ======================================================================
+  */ 
+
+package view;
+
+import java.lang.Math.*;
+import java.applet.*;
+import java.util.*;
+import java.io.*;
+import java.text.*;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.border.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.Color;
+import java.awt.font.*;
+import java.awt.image.*;
+import java.awt.geom.*;   // Needed for affine transformation....
+
+import view.shape.*;      // Import shape classes 
+import view.graphics.*;   // Graphics grid opeations ...
+import model.*;           // Composite Hierarchy ...
+
+public class PlanViewPanel extends JPanel {
+    private boolean DEBUG =    true;
+    private CompositeHierarchy base;
+    public  AffineTransform      at;
+    public  GraphicsGrid       grid;
+    public  GraphicsOperation  grop;
+    private Dimension          size;
+    public  Graphics2D          g2D;
+    int     width, height;
+    int     iBorder = 25;
+
+    private CompositeHierarchy metroWorkspace;
+    private CompositeHierarchy  areaWorkspace;
+    private CompositeHierarchy trainWorkspace;
+
+    // Working coordinate limits.
+
+    private double MinX =  -300.0;
+    private double MinY =  -100.0;
+    private double MaxX =   600.0;
+    private double MaxY =   500.0;
+
+    boolean overShape = false;
+
+    //  Constructor for simple screen ....
+
+    PlanViewPanel () {
+       grid = new GraphicsGrid();
+       grop = new GraphicsOperation();
+       base = new CompositeHierarchy( 0.0, 0.0, 0.0 );
+    }
+
+    // Set composite hierarchy workspaces ...
+
+    public void setMetroSystemWorkspace ( CompositeHierarchy workspace ) {
+       this.metroWorkspace = workspace;
+    }
+
+    public void setMetroAreaWorkspace ( CompositeHierarchy workspace ) {
+       this.areaWorkspace = workspace;
+    }
+
+    public void setMetroTrainsWorkspace( CompositeHierarchy workspace ) {
+       this.trainWorkspace = workspace;
+    }
+
+    // Retrieve max/min graphics coordinates ...
+
+    public double getMinX() { return MinX; }
+    public double getMinY() { return MinY; }
+    public double getMaxX() { return MaxX; }
+    public double getMaxY() { return MaxY; }
+
+    // Add compound shape to the scene ...
+
+    public void addShape ( CompoundShape s ) {
+        base.add( s );
+    }
+
+    // Paint panel ...
+
+    public void paint() {
+       Graphics g = getGraphics();
+       super.paintComponent(g);
+       paintComponent(g);
+    }
+
+    public void update(Graphics g) {}
+
+    protected void paintComponent(java.awt.Graphics g) {
+        super.paintComponent(g);
+        g2D = (Graphics2D) g.create();
+        g2D.setBackground( Color.white );
+        width  = getWidth();
+        height = getHeight();
+
+        // Transform origin to lower right-hand corner ..
+
+        at = new AffineTransform();
+        at.translate(  iBorder, height - iBorder );
+        at.scale( 1, -1);
+        at.translate( -MinX, -MinY );
+        g2D.setTransform (at);
+
+        base.setAffineTransform( at );
+
+        // Draw grid ....
+
+        if ( grop.getDrawGrid() == true )
+             grid.draw ( g2D, MinX, MinY, MaxX, MaxY );
+
+        // Draw items in the composite hierarchy
+
+        // metroWorkspace.draw( g2D );
+    }
+
+    // Get composite hierarchy base ....
+
+    public CompositeHierarchy getCompositeHierarchyBase() {
+       return base;
+    }
+
+    // Get graphics grid ....
+
+    public GraphicsGrid getGraphicsGrid() {
+       return grid;
+    }
+
+    // Get graphics operation ....
+
+    public GraphicsOperation getGraphicsOperation() {
+       return grop;
+    }
+}
+
+// ===============================================================
+// MouseMotion listener for the PlanViewPanel....
+// ===============================================================
+
+class PlanViewPanelListener implements MouseMotionListener {
+   private boolean DEBUG = true;
+   PlanViewPanel       mpp;
+   CompositeHierarchy base;
+
+   public PlanViewPanelListener( PlanViewPanel mpp ) {
+      this.mpp  = mpp;   
+      this.base = mpp.getCompositeHierarchyBase();   
+   }
+   
+   // Executed when the mouse is moved.
+
+   public void mouseMoved(MouseEvent event ) {
+      Point mousePoint = event.getPoint();
+      boolean newOverShape = false;
+      String overShapeName = null;
+      double dVx, dVy;
+
+      // Get point from mouse moved event and covert
+      // to grid coordinates ....
+
+      double dx = mousePoint.getX();
+      double dy = mousePoint.getY();
+
+      // Affine transformation for composite hierarchy search ...
+
+      AffineTransform at = new AffineTransform();
+      at.translate(    mpp.iBorder, mpp.height - mpp.iBorder );
+      at.scale( 1, -1 );
+      at.translate( -mpp.getMinX(), -mpp.getMinY() );
+
+      // Composite hierarchy search ...
+
+      base.setAffineTransform( at );
+      base.search( at, (int) dx, (int) dy ); 
+
+      // Repaint the scene ....
+
+      mpp.repaint();
+   }
+
+   public void mouseDragged(MouseEvent me) {}
+   public void mouseEntered (MouseEvent e) {}
+   public void mousePressed (MouseEvent e) {}
+   public void mouseReleased (MouseEvent e) {}
+   public void mouseExited (MouseEvent e) {}
+}
+
