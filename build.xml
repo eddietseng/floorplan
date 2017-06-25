@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<project basedir = "." default="compile">
+
+    <!-- Cleanup -->
+
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <!-- Compile java source code. -->
+
+    <target name="compile" description="Compile java source code">
+        <mkdir dir="build" />
+        <mkdir dir="build/icons" />
+        <copy todir="build/icons">
+            <fileset dir="src/icons" />
+        </copy>
+        <javac srcdir="./src" destdir="./build"
+               classpath="${java.class.path}:./jgrapht/lib/jgrapht-jdk1.5.jar:./jgrapht/lib/jgraph.jar:./colt/lib/colt.jar:."
+               fork="true"/>
+    </target>
+
+    <!-- Program 01: Create and run metro system graph -->
+
+    <target name="run01" depends = "compile" description="Run src.MetroSystemHub">
+        <java classname = "model.MetroSystemGraph"
+              classpath="${java.class.path}:./jgrapht/lib/jgrapht-jdk1.5.jar:./jgrapht/lib/jgraph.jar:./build:."
+              fork="true"/>
+    </target>
+
+    <!-- Program 02: Create and run metroline pathway computation ... -->
+
+    <target name="run02" depends = "compile" description="Run src.model.metro.MetroPathway.main()">
+        <java classname = "model.metro.MetroLinePathway"
+              classpath="${java.class.path}:./jgrapht/lib/jgrapht-jdk1.5.jar:./jgrapht/lib/jgraph.jar:./build:."
+              fork="true"/>
+    </target>
+
+    <!-- Program 03: Compute polygon for a multi-line region ... -->
+
+    <target name="run03" depends = "compile" description="Run src.model.metro.MetroPathway.main()">
+        <java classname = "model.metro.MetroLineRegion"
+              classpath="${java.class.path}:./jgrapht/lib/jgrapht-jdk1.5.jar:./jgrapht/lib/jgraph.jar:./build:."
+              fork="true"/>
+    </target>
+
+    <!-- Program 04: GUI for Washington DC demo -->
+
+    <target name="run04" depends = "compile" description="Run src.SystemModelingHub">
+        <java classname = "SystemModelingHub"
+              classpath="${java.class.path}:./jgrapht/lib/jgrapht-jdk1.5.jar:./jgrapht/lib/jgraph.jar:./build:."
+              fork="true"/>
+    </target>
+
+    <!-- Program 05: Exercise methods in GridSystem model -->
+
+    <target name="run05" depends = "compile" description="Run model.floorplan.GridSystem">
+        <java classname = "model.floorplan.GridSystem"
+              classpath="${java.class.path}:./jgrapht/lib/jgrapht-jdk1.5.jar:./jgrapht/lib/jgraph.jar:./build:."
+              fork="true"/>
+    </target>
+
+    <!-- Program 06: Exercise methods in Space2D model -->
+
+    <target name="run06" depends = "compile" description="Run model.floorplan.Space2D">
+        <java classname = "model.floorplan.Space2D"
+              classpath="${java.class.path}:./jgrapht/lib/jgrapht-jdk1.5.jar:./jgrapht/lib/jgraph.jar:./build:."
+              fork="true"/>
+    </target>
+
+    <!-- Program 07: Textual version of floorplan assembly -->
+
+    <target name="run07" depends = "compile" description="Run demo.DemoFloorplan">
+        <java classname = "demo.DemoFloorplan"
+              classpath="${java.class.path}:./jgrapht/lib/jgrapht-jdk1.5.jar:./jgrapht/lib/jgraph.jar:./build:."
+              fork="true"/>
+    </target>
+
+</project>
+
